@@ -4,6 +4,8 @@
  */
 package interfaces;
 
+import modelo.SistemaEnvios;
+
 /**
  *
  * @author Mauro
@@ -15,7 +17,7 @@ public class VentanaMenuPrincipal extends javax.swing.JFrame {
     /**
      * Creates new form VentanaMenuPrincipal
      */
-    public VentanaMenuPrincipal() {
+    public VentanaMenuPrincipal(SistemaEnvios sistema) {
         initComponents();
     }
 
@@ -66,7 +68,7 @@ public class VentanaMenuPrincipal extends javax.swing.JFrame {
         //</editor-fold>
 
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(() -> new VentanaMenuPrincipal().setVisible(true));
+        java.awt.EventQueue.invokeLater(() -> new VentanaMenuPrincipal(sistema).setVisible(true));
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

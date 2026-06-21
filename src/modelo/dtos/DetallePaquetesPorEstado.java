@@ -20,7 +20,7 @@ public class DetallePaquetesPorEstado {
     public DetallePaquetesPorEstado(int cantidadClientesDiferentes,
             List<Departamento> departamentosDestino) {
         this.cantidadClientesDiferentes = cantidadClientesDiferentes;
-        this.departamentosDestino = (ArrayList<Departamento>) departamentosDestino;
+        this.departamentosDestino = new ArrayList<>(departamentosDestino);
     }
 
     public int getCantidadClientesDiferentes() {
