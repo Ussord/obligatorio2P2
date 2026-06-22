@@ -4,19 +4,32 @@
  */
 package interfaces;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import modelo.SistemaEnvios;
+import modelo.enums.TipoEvento;
+
 /**
  *
  * @author Mauro
  */
-public class VentanaLogTransacciones extends javax.swing.JFrame {
+public class VentanaLogTransacciones extends JFrame implements PropertyChangeListener {
     
-    private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(VentanaLogTransacciones.class.getName());
-
+    private final SistemaEnvios sistema;
+    
     /**
      * Creates new form VentanaLogTransacciones
      */
-    public VentanaLogTransacciones() {
+    public VentanaLogTransacciones(SistemaEnvios sistema) {
+        if (sistema == null) {
+            throw new IllegalArgumentException("El sistema no puede ser null.");
+        }
+        this.sistema = sistema;
         initComponents();
+        sistema.addPropertyChangeListener(this);
+        cargarLog();
     }
 
     /**
@@ -28,47 +41,146 @@ public class VentanaLogTransacciones extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        panelPrincipal = new javax.swing.JPanel();
+        scrollLog = new javax.swing.JScrollPane();
+        txtLog = new javax.swing.JTextArea();
+        panelBotones = new javax.swing.JPanel();
+        btnCerrar = new javax.swing.JButton();
+        btnBorrar = new javax.swing.JButton();
+        btnActualizar = new javax.swing.JButton();
+
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setTitle("Log de transacciones");
+
+        txtLog.setEditable(false);
+        txtLog.setColumns(20);
+        txtLog.setLineWrap(true);
+        txtLog.setRows(5);
+        txtLog.setWrapStyleWord(true);
+        scrollLog.setViewportView(txtLog);
+
+        btnCerrar.setText("Cerrar");
+        btnCerrar.addActionListener(this::btnCerrarActionPerformed);
+
+        btnBorrar.setText("Borrar");
+        btnBorrar.addActionListener(this::btnBorrarActionPerformed);
+
+        btnActualizar.setText("Actualizar");
+        btnActualizar.addActionListener(this::btnActualizarActionPerformed);
+
+        javax.swing.GroupLayout panelBotonesLayout = new javax.swing.GroupLayout(panelBotones);
+        panelBotones.setLayout(panelBotonesLayout);
+        panelBotonesLayout.setHorizontalGroup(
+            panelBotonesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelBotonesLayout.createSequentialGroup()
+                .addContainerGap(325, Short.MAX_VALUE)
+                .addComponent(btnActualizar)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btnBorrar)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btnCerrar)
+                .addContainerGap())
+        );
+        panelBotonesLayout.setVerticalGroup(
+            panelBotonesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelBotonesLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(panelBotonesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnCerrar)
+                    .addComponent(btnBorrar)
+                    .addComponent(btnActualizar))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        javax.swing.GroupLayout panelPrincipalLayout = new javax.swing.GroupLayout(panelPrincipal);
+        panelPrincipal.setLayout(panelPrincipalLayout);
+        panelPrincipalLayout.setHorizontalGroup(
+            panelPrincipalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelPrincipalLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(panelPrincipalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(scrollLog)
+                    .addComponent(panelBotones, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
+        );
+        panelPrincipalLayout.setVerticalGroup(
+            panelPrincipalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelPrincipalLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(scrollLog, javax.swing.GroupLayout.PREFERRED_SIZE, 349, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(panelBotones, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(panelPrincipal, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(panelPrincipal, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ReflectiveOperationException | javax.swing.UnsupportedLookAndFeelException ex) {
-            logger.log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
+    private void btnActualizarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnActualizarActionPerformed
+        cargarLog();
+    }//GEN-LAST:event_btnActualizarActionPerformed
 
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(() -> new VentanaLogTransacciones().setVisible(true));
-    }
+    private void btnBorrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBorrarActionPerformed
+        int opcion = JOptionPane.showConfirmDialog(
+                this,
+                "¿Desea borrar todo el contenido del log de transacciones?",
+                "Confirmar borrado",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.WARNING_MESSAGE
+        );
+
+        if (opcion == JOptionPane.YES_OPTION) {
+            sistema.borrarLogTransacciones();
+            cargarLog();
+        }
+    }//GEN-LAST:event_btnBorrarActionPerformed
+
+    private void btnCerrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCerrarActionPerformed
+        dispose();
+    }//GEN-LAST:event_btnCerrarActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnActualizar;
+    private javax.swing.JButton btnBorrar;
+    private javax.swing.JButton btnCerrar;
+    private javax.swing.JPanel panelBotones;
+    private javax.swing.JPanel panelPrincipal;
+    private javax.swing.JScrollPane scrollLog;
+    private javax.swing.JTextArea txtLog;
     // End of variables declaration//GEN-END:variables
+
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+        if (TipoEvento.LOG_TRANSACCIONES.name().equals(evt.getPropertyName())) {
+            cargarLog();
+        }
+    }
+    
+    private void cargarLog() {
+        txtLog.setText(sistema.leerLogTransacciones());
+        txtLog.setCaretPosition(txtLog.getDocument().getLength());
+    }
+    
+    @Override
+    public void dispose() {
+        sistema.removePropertyChangeListener(this);
+        super.dispose();
+    }
 }

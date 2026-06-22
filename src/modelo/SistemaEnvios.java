@@ -277,6 +277,22 @@ public class SistemaEnvios implements Serializable {
         );
     }
 
+    public DetallePaquetesPorEstado detallePaquetesPorZona(Zona zona) {
+        validarZona(zona);
+        Set<Cliente> clientesDiferentes = new HashSet<>();
+        Set<Departamento> departamentosDestino = EnumSet.noneOf(Departamento.class);
+        for (Paquete paquete : paquetes) {
+            if (paquete.getZona() == zona) {
+                clientesDiferentes.add(paquete.getCliente());
+                departamentosDestino.add(paquete.getDepartamentoDestino());
+            }
+        }
+        return new DetallePaquetesPorEstado(
+                clientesDiferentes.size(),
+                new ArrayList<>(departamentosDestino)
+        );
+    }
+
     public ConsultaPorCliente consultaPorCliente(Cliente cliente) {
         validarClienteExistente(cliente);
         int pendientes = 0;
@@ -285,10 +301,14 @@ public class SistemaEnvios implements Serializable {
         for (Paquete paquete : paquetes) {
             if (paquete.getCliente() == cliente) {
                 switch (paquete.getEstado()) {
-                    case PENDIENTE -> pendientes++;
-                    case ENVIADO -> enviados++;
-                    case RECIBIDO -> recibidos++;
-                    default -> throw new IllegalStateException("Estado de paquete no reconocido.");
+                    case PENDIENTE ->
+                        pendientes++;
+                    case ENVIADO ->
+                        enviados++;
+                    case RECIBIDO ->
+                        recibidos++;
+                    default ->
+                        throw new IllegalStateException("Estado de paquete no reconocido.");
                 }
             }
         }

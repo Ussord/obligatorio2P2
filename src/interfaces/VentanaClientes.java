@@ -4,19 +4,118 @@
  */
 package interfaces;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import javax.swing.DefaultListModel;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import modelo.Cliente;
+import modelo.SistemaEnvios;
+import modelo.enums.TipoEvento;
+
 /**
  *
  * @author Mauro
  */
-public class VentanaClientes extends javax.swing.JFrame {
-    
-    private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(VentanaClientes.class.getName());
+public class VentanaClientes extends JFrame implements PropertyChangeListener {
+
+    private final SistemaEnvios sistema;
 
     /**
      * Creates new form VentanaClientes
      */
-    public VentanaClientes() {
+    public VentanaClientes(SistemaEnvios sistema) {
+        if (sistema == null) {
+            throw new IllegalArgumentException("El sistema no puede ser null.");
+        }
+        this.sistema = sistema;
         initComponents();
+        btnModificar.setEnabled(false);
+        sistema.addPropertyChangeListener(this);
+        cargarClientes();
+    }
+
+    private void cargarClientes() {
+        DefaultListModel<Cliente> modeloLista = new DefaultListModel<>();
+        for (Cliente cliente : sistema.clientesOrdenadosPorNombre()) {
+            modeloLista.addElement(cliente);
+        }
+        lstClientes.setModel(modeloLista);
+    }
+
+    private void cargarDatosClienteSeleccionado() {
+        Cliente cliente = lstClientes.getSelectedValue();
+        if (cliente == null) {
+            btnModificar.setEnabled(false);
+            return;
+        }
+        txtNombre.setText(cliente.getNombre());
+        txtCelular.setText(cliente.getCelular());
+        txtCorreoElectronico.setText(cliente.getCorreoElectronico());
+        btnModificar.setEnabled(true);
+    }
+
+    private void limpiarCampos() {
+        lstClientes.clearSelection();
+        txtNombre.setText("");
+        txtCelular.setText("");
+        txtCorreoElectronico.setText("");
+        btnModificar.setEnabled(false);
+        txtNombre.requestFocus();
+    }
+
+    private void crearCliente() {
+        try {
+            sistema.crearCliente(
+                    txtNombre.getText(),
+                    txtCelular.getText(),
+                    txtCorreoElectronico.getText()
+            );
+            limpiarCampos();
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            mostrarError(e.getMessage());
+        }
+    }
+
+    private void modificarCliente() {
+        Cliente cliente = lstClientes.getSelectedValue();
+        if (cliente == null) {
+            mostrarError("Debe seleccionar un cliente.");
+            return;
+        }
+        try {
+            sistema.modificarCliente(
+                    cliente,
+                    txtNombre.getText(),
+                    txtCelular.getText(),
+                    txtCorreoElectronico.getText()
+            );
+            limpiarCampos();
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            mostrarError(e.getMessage());
+        }
+    }
+
+    private void mostrarError(String mensaje) {
+        JOptionPane.showMessageDialog(
+                this,
+                mensaje,
+                "Error",
+                JOptionPane.ERROR_MESSAGE
+        );
+    }
+
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+        if (TipoEvento.CLIENTES.name().equals(evt.getPropertyName())) {
+            cargarClientes();
+        }
+    }
+
+    @Override
+    public void dispose() {
+        sistema.removePropertyChangeListener(this);
+        super.dispose();
     }
 
     /**
@@ -28,47 +127,147 @@ public class VentanaClientes extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        scrollClientes = new javax.swing.JScrollPane();
+        lstClientes = new javax.swing.JList<>();
+        lblNombre = new javax.swing.JLabel();
+        lblCelular = new javax.swing.JLabel();
+        lblCorreoElectronico = new javax.swing.JLabel();
+        txtNombre = new javax.swing.JTextField();
+        txtCelular = new javax.swing.JTextField();
+        txtCorreoElectronico = new javax.swing.JTextField();
+        btnCrear = new javax.swing.JButton();
+        btnModificar = new javax.swing.JButton();
+        btnLimpiar = new javax.swing.JButton();
+        btnCerrar = new javax.swing.JButton();
+        jLabel1 = new javax.swing.JLabel();
+
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setTitle("Clientes");
+
+        lstClientes.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        lstClientes.addListSelectionListener(this::lstClientesValueChanged);
+        scrollClientes.setViewportView(lstClientes);
+
+        lblNombre.setText("Nombre");
+
+        lblCelular.setText("Celular");
+
+        lblCorreoElectronico.setText("Correo electrónico");
+
+        btnCrear.setText("Crear");
+        btnCrear.addActionListener(this::btnCrearActionPerformed);
+
+        btnModificar.setText("Modificar");
+        btnModificar.addActionListener(this::btnModificarActionPerformed);
+
+        btnLimpiar.setText("Limpiar");
+        btnLimpiar.addActionListener(this::btnLimpiarActionPerformed);
+
+        btnCerrar.setText("Cerrar");
+        btnCerrar.addActionListener(this::btnCerrarActionPerformed);
+
+        jLabel1.setText("Clientes registrados");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(scrollClientes)
+                .addContainerGap())
+            .addGroup(layout.createSequentialGroup()
+                .addGap(108, 108, 108)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(lblNombre)
+                    .addComponent(lblCelular)
+                    .addComponent(lblCorreoElectronico))
+                .addGap(51, 51, 51)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(txtNombre)
+                    .addComponent(txtCelular)
+                    .addComponent(txtCorreoElectronico, javax.swing.GroupLayout.DEFAULT_SIZE, 160, Short.MAX_VALUE))
+                .addGap(46, 46, 46)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(btnCrear, javax.swing.GroupLayout.DEFAULT_SIZE, 87, Short.MAX_VALUE)
+                    .addComponent(btnLimpiar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(btnCerrar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(btnModificar, javax.swing.GroupLayout.DEFAULT_SIZE, 95, Short.MAX_VALUE))
+                .addGap(59, 59, 59))
+            .addGroup(layout.createSequentialGroup()
+                .addGap(16, 16, 16)
+                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 114, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addGap(35, 35, 35)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lblNombre)
+                    .addComponent(txtNombre, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnModificar)
+                    .addComponent(btnCrear))
+                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(lblCelular)
+                        .addComponent(txtCelular, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(btnCerrar)
+                        .addComponent(btnLimpiar)))
+                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lblCorreoElectronico)
+                    .addComponent(txtCorreoElectronico, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 27, Short.MAX_VALUE)
+                .addComponent(jLabel1)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(scrollClientes, javax.swing.GroupLayout.PREFERRED_SIZE, 247, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ReflectiveOperationException | javax.swing.UnsupportedLookAndFeelException ex) {
-            logger.log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
+    private void btnCrearActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCrearActionPerformed
+        crearCliente();
+    }//GEN-LAST:event_btnCrearActionPerformed
 
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(() -> new VentanaClientes().setVisible(true));
-    }
+    private void lstClientesValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_lstClientesValueChanged
+        if (!evt.getValueIsAdjusting()) {
+            cargarDatosClienteSeleccionado();
+        }
+    }//GEN-LAST:event_lstClientesValueChanged
+
+    private void btnModificarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnModificarActionPerformed
+        modificarCliente();
+    }//GEN-LAST:event_btnModificarActionPerformed
+
+    private void btnLimpiarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLimpiarActionPerformed
+        limpiarCampos();
+    }//GEN-LAST:event_btnLimpiarActionPerformed
+
+    private void btnCerrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCerrarActionPerformed
+        dispose();
+    }//GEN-LAST:event_btnCerrarActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnCerrar;
+    private javax.swing.JButton btnCrear;
+    private javax.swing.JButton btnLimpiar;
+    private javax.swing.JButton btnModificar;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel lblCelular;
+    private javax.swing.JLabel lblCorreoElectronico;
+    private javax.swing.JLabel lblNombre;
+    private javax.swing.JList<Cliente> lstClientes;
+    private javax.swing.JScrollPane scrollClientes;
+    private javax.swing.JTextField txtCelular;
+    private javax.swing.JTextField txtCorreoElectronico;
+    private javax.swing.JTextField txtNombre;
     // End of variables declaration//GEN-END:variables
+
 }

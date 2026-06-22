@@ -4,19 +4,127 @@
  */
 package interfaces;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+import modelo.SistemaEnvios;
+import modelo.TarifaZona;
+import modelo.enums.CategoriaPeso;
+import modelo.enums.TipoEvento;
+import modelo.enums.Zona;
+
 /**
  *
  * @author Mauro
  */
-public class VentanaTarifas extends javax.swing.JFrame {
-    
-    private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(VentanaTarifas.class.getName());
+public class VentanaTarifas extends JFrame implements PropertyChangeListener {
+
+    private final SistemaEnvios sistema;
 
     /**
      * Creates new form VentanaTarifas
      */
-    public VentanaTarifas() {
+    public VentanaTarifas(SistemaEnvios sistema) {
+        if (sistema == null) {
+            throw new IllegalArgumentException("El sistema no puede ser null.");
+        }
+        this.sistema = sistema;
         initComponents();
+        sistema.addPropertyChangeListener(this);
+        configurarTabla();
+        cargarTarifas();
+    }
+
+    private void configurarTabla() {
+        DefaultTableModel modeloTabla = new DefaultTableModel(
+                new Object[][]{},
+                new String[]{
+                    "Zona",
+                    "Menor a 1 kg",
+                    "1 a menos de 5 kg",
+                    "5 a menos de 10 kg",
+                    "10 kg o más"
+                }
+        ) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+
+        tablaTarifas.setModel(modeloTabla);
+    }
+
+    private void cargarTarifas() {
+        DefaultTableModel modeloTabla = (DefaultTableModel) tablaTarifas.getModel();
+        modeloTabla.setRowCount(0);
+        for (Zona zona : Zona.values()) {
+            TarifaZona tarifaZona = sistema.getTarifas().getTarifaZona(zona);
+            modeloTabla.addRow(new Object[]{
+                zona,
+                tarifaZona.precio(CategoriaPeso.MENOR_A_1_KG),
+                tarifaZona.precio(CategoriaPeso.DESDE_1_HASTA_MENOS_5_KG),
+                tarifaZona.precio(CategoriaPeso.DESDE_5_HASTA_MENOS_10_KG),
+                tarifaZona.precio(CategoriaPeso.DE_10_KG_O_MAS)
+            });
+        }
+    }
+
+    private void actualizarTarifas() {
+        try {
+            double porcentaje = convertirPorcentaje(txtPorcentaje.getText());
+            sistema.actualizarTarifas(porcentaje);
+            txtPorcentaje.setText("");
+            txtPorcentaje.requestFocus();
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Las tarifas fueron actualizadas correctamente.",
+                    "Tarifas actualizadas",
+                    JOptionPane.INFORMATION_MESSAGE
+            );
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            mostrarError(e.getMessage());
+        }
+    }
+
+    private double convertirPorcentaje(String texto) {
+        if (texto == null || texto.isBlank()) {
+            throw new IllegalArgumentException("Debe ingresar un porcentaje.");
+        }
+        try {
+            return Double.parseDouble(texto.trim().replace(",", "."));
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("El porcentaje debe ser numérico.");
+        }
+    }
+
+    private void limpiarCampos() {
+        txtPorcentaje.setText("");
+        txtPorcentaje.requestFocus();
+    }
+
+    private void mostrarError(String mensaje) {
+        JOptionPane.showMessageDialog(
+                this,
+                mensaje,
+                "Error",
+                JOptionPane.ERROR_MESSAGE
+        );
+    }
+
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+        if (TipoEvento.TARIFAS.name().equals(evt.getPropertyName())) {
+            cargarTarifas();
+        }
+    }
+
+    @Override
+    public void dispose() {
+        sistema.removePropertyChangeListener(this);
+        super.dispose();
     }
 
     /**
@@ -28,47 +136,104 @@ public class VentanaTarifas extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        scrollTarifas = new javax.swing.JScrollPane();
+        tablaTarifas = new javax.swing.JTable();
+        lblPorcentaje = new javax.swing.JLabel();
+        txtPorcentaje = new javax.swing.JTextField();
+        btnCerrar = new javax.swing.JButton();
+        btnLimpiar = new javax.swing.JButton();
+        btnActualizarTarifas = new javax.swing.JButton();
+
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setTitle("Tarifas");
+
+        tablaTarifas.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String [] {
+                "Title 1", "Title 2", "Title 3", "Title 4"
+            }
+        ));
+        scrollTarifas.setViewportView(tablaTarifas);
+
+        lblPorcentaje.setText("Porcentaje");
+
+        btnCerrar.setText("Cerrar");
+        btnCerrar.addActionListener(this::btnCerrarActionPerformed);
+
+        btnLimpiar.setText("Limpiar");
+        btnLimpiar.addActionListener(this::btnLimpiarActionPerformed);
+
+        btnActualizarTarifas.setText("Actualizar");
+        btnActualizarTarifas.addActionListener(this::btnActualizarTarifasActionPerformed);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(scrollTarifas, javax.swing.GroupLayout.DEFAULT_SIZE, 810, Short.MAX_VALUE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(btnActualizarTarifas)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnLimpiar)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnCerrar)))
+                .addContainerGap())
+            .addGroup(layout.createSequentialGroup()
+                .addGap(46, 46, 46)
+                .addComponent(lblPorcentaje)
+                .addGap(18, 18, 18)
+                .addComponent(txtPorcentaje, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(scrollTarifas, javax.swing.GroupLayout.PREFERRED_SIZE, 308, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lblPorcentaje)
+                    .addComponent(txtPorcentaje, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 16, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnCerrar)
+                    .addComponent(btnLimpiar)
+                    .addComponent(btnActualizarTarifas))
+                .addContainerGap())
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ReflectiveOperationException | javax.swing.UnsupportedLookAndFeelException ex) {
-            logger.log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
+    private void btnActualizarTarifasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnActualizarTarifasActionPerformed
+        actualizarTarifas();
+    }//GEN-LAST:event_btnActualizarTarifasActionPerformed
 
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(() -> new VentanaTarifas().setVisible(true));
-    }
+    private void btnLimpiarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLimpiarActionPerformed
+        limpiarCampos();
+    }//GEN-LAST:event_btnLimpiarActionPerformed
+
+    private void btnCerrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCerrarActionPerformed
+        dispose();
+    }//GEN-LAST:event_btnCerrarActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnActualizarTarifas;
+    private javax.swing.JButton btnCerrar;
+    private javax.swing.JButton btnLimpiar;
+    private javax.swing.JLabel lblPorcentaje;
+    private javax.swing.JScrollPane scrollTarifas;
+    private javax.swing.JTable tablaTarifas;
+    private javax.swing.JTextField txtPorcentaje;
     // End of variables declaration//GEN-END:variables
+
 }

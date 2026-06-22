@@ -11,14 +11,19 @@ import modelo.SistemaEnvios;
  * @author Mauro
  */
 public class VentanaMenuPrincipal extends javax.swing.JFrame {
-    
-    private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(VentanaMenuPrincipal.class.getName());
+
+    private final SistemaEnvios sistema;
 
     /**
      * Creates new form VentanaMenuPrincipal
      */
     public VentanaMenuPrincipal(SistemaEnvios sistema) {
+        if (sistema == null) {
+            throw new IllegalArgumentException("El sistema no puede ser null.");
+        }
         initComponents();
+        this.sistema = sistema;
+        setLocationRelativeTo(null);
     }
 
     /**
@@ -30,47 +35,141 @@ public class VentanaMenuPrincipal extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        menuBarPrincipal = new javax.swing.JMenuBar();
+        menuDatos = new javax.swing.JMenu();
+        itemClientes = new javax.swing.JMenuItem();
+        itemFuncionarios = new javax.swing.JMenuItem();
+        itemTarifas = new javax.swing.JMenuItem();
+        menuPaquetes = new javax.swing.JMenu();
+        itemIngresoPaquete = new javax.swing.JMenuItem();
+        itemEnvio = new javax.swing.JMenuItem();
+        itemRecepcion = new javax.swing.JMenuItem();
+        menuReportes = new javax.swing.JMenu();
+        itemPaquetesPorEstado = new javax.swing.JMenuItem();
+        itemConsultaCliente = new javax.swing.JMenuItem();
+        itemLogTransacciones = new javax.swing.JMenuItem();
+
+        setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
+        setTitle("Sistema de Envíos");
+
+        menuDatos.setText("Datos");
+
+        itemClientes.setText("Clientes");
+        itemClientes.addActionListener(this::itemClientesActionPerformed);
+        menuDatos.add(itemClientes);
+
+        itemFuncionarios.setText("Funcionarios");
+        itemFuncionarios.addActionListener(this::itemFuncionariosActionPerformed);
+        menuDatos.add(itemFuncionarios);
+
+        itemTarifas.setText("Tarifas");
+        itemTarifas.addActionListener(this::itemTarifasActionPerformed);
+        menuDatos.add(itemTarifas);
+
+        menuBarPrincipal.add(menuDatos);
+
+        menuPaquetes.setText("Paquetes");
+
+        itemIngresoPaquete.setText("Ingreso");
+        itemIngresoPaquete.addActionListener(this::itemIngresoPaqueteActionPerformed);
+        menuPaquetes.add(itemIngresoPaquete);
+
+        itemEnvio.setText("Envío");
+        itemEnvio.addActionListener(this::itemEnvioActionPerformed);
+        menuPaquetes.add(itemEnvio);
+
+        itemRecepcion.setText("Recepción");
+        itemRecepcion.addActionListener(this::itemRecepcionActionPerformed);
+        menuPaquetes.add(itemRecepcion);
+
+        menuBarPrincipal.add(menuPaquetes);
+
+        menuReportes.setText("Reportes");
+
+        itemPaquetesPorEstado.setText("Paquetes por estado");
+        itemPaquetesPorEstado.addActionListener(this::itemPaquetesPorEstadoActionPerformed);
+        menuReportes.add(itemPaquetesPorEstado);
+
+        itemConsultaCliente.setText("Consulta por cliente");
+        itemConsultaCliente.addActionListener(this::itemConsultaClienteActionPerformed);
+        menuReportes.add(itemConsultaCliente);
+
+        itemLogTransacciones.setText("Log de transacciones");
+        itemLogTransacciones.addActionListener(this::itemLogTransaccionesActionPerformed);
+        menuReportes.add(itemLogTransacciones);
+
+        menuBarPrincipal.add(menuReportes);
+
+        setJMenuBar(menuBarPrincipal);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
+            .addGap(0, 633, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
+            .addGap(0, 337, Short.MAX_VALUE)
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ReflectiveOperationException | javax.swing.UnsupportedLookAndFeelException ex) {
-            logger.log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
-
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(() -> new VentanaMenuPrincipal(sistema).setVisible(true));
+    private void abrirVentana(javax.swing.JFrame ventana) {
+        ventana.setLocationRelativeTo(this);
+        ventana.setVisible(true);
     }
 
+    private void itemClientesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_itemClientesActionPerformed
+        abrirVentana(new VentanaClientes(sistema));
+    }//GEN-LAST:event_itemClientesActionPerformed
+
+    private void itemIngresoPaqueteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_itemIngresoPaqueteActionPerformed
+        abrirVentana(new VentanaIngresoPaquete(sistema));
+    }//GEN-LAST:event_itemIngresoPaqueteActionPerformed
+
+    private void itemFuncionariosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_itemFuncionariosActionPerformed
+        abrirVentana(new VentanaFuncionarios(sistema));
+    }//GEN-LAST:event_itemFuncionariosActionPerformed
+
+    private void itemTarifasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_itemTarifasActionPerformed
+        abrirVentana(new VentanaTarifas(sistema));
+    }//GEN-LAST:event_itemTarifasActionPerformed
+
+    private void itemEnvioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_itemEnvioActionPerformed
+        abrirVentana(new VentanaEnvio(sistema));
+    }//GEN-LAST:event_itemEnvioActionPerformed
+
+    private void itemRecepcionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_itemRecepcionActionPerformed
+        abrirVentana(new VentanaRecepcion(sistema));
+    }//GEN-LAST:event_itemRecepcionActionPerformed
+
+    private void itemPaquetesPorEstadoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_itemPaquetesPorEstadoActionPerformed
+        abrirVentana(new VentanaReportePaquetesPorEstado(sistema));
+    }//GEN-LAST:event_itemPaquetesPorEstadoActionPerformed
+
+    private void itemConsultaClienteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_itemConsultaClienteActionPerformed
+        abrirVentana(new VentanaConsultaCliente(sistema));
+    }//GEN-LAST:event_itemConsultaClienteActionPerformed
+
+    private void itemLogTransaccionesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_itemLogTransaccionesActionPerformed
+        abrirVentana(new VentanaLogTransacciones(sistema));
+    }//GEN-LAST:event_itemLogTransaccionesActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JMenuItem itemClientes;
+    private javax.swing.JMenuItem itemConsultaCliente;
+    private javax.swing.JMenuItem itemEnvio;
+    private javax.swing.JMenuItem itemFuncionarios;
+    private javax.swing.JMenuItem itemIngresoPaquete;
+    private javax.swing.JMenuItem itemLogTransacciones;
+    private javax.swing.JMenuItem itemPaquetesPorEstado;
+    private javax.swing.JMenuItem itemRecepcion;
+    private javax.swing.JMenuItem itemTarifas;
+    private javax.swing.JMenuBar menuBarPrincipal;
+    private javax.swing.JMenu menuDatos;
+    private javax.swing.JMenu menuPaquetes;
+    private javax.swing.JMenu menuReportes;
     // End of variables declaration//GEN-END:variables
 }

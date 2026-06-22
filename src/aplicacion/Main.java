@@ -49,7 +49,6 @@ public class Main {
                     "Error al iniciar sistema",
                     JOptionPane.WARNING_MESSAGE
             );
-
             return SistemaEnvios.cargarSistema(false);
         }
     }
